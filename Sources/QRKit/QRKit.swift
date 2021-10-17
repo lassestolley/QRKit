@@ -36,6 +36,7 @@ public func generateQRCode(from string: String, type: QRType, backroundColor: UI
         filter.setValue(data, forKey: "inputMessage")
         let transform = CGAffineTransform(scaleX: 20, y: 20)
         
+        // Transform the QR Code
         if let output = filter.outputImage?.transformed(by: transform) {
             
             // Color filter
@@ -49,6 +50,7 @@ public func generateQRCode(from string: String, type: QRType, backroundColor: UI
 
             let outputImage = colorFilter.outputImage!
             
+            // Return UIImage with QR Code
             return UIImage(ciImage: outputImage)
         }
     }
