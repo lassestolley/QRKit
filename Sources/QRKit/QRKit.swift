@@ -3,8 +3,27 @@ import UIKit
 import CoreImage
 import Foundation
 
+// QR Code types
+public enum QRType {
+    
+    case qrCode, barCode, aztecCode
+    
+    var filterName: String {
+        
+        switch self {
+        
+        case .qrCode:
+            return "CIQRCodeGenerator"
+        case .barCode:
+            return "CICode128BarcodeGenerator"
+        default:
+            return "CIQRCodeGenerator"
+        }
+    }
+}
+
 // Generate QR Code
-public func generateQRCode(from string: String, backroundColor: UIColor, foregroundColor: UIColor) -> UIImage? {
+public func generateQRCode(from string: String, type: QRType, backroundColor: UIColor, foregroundColor: UIColor) -> UIImage? {
     
     // Remove umlauts
     let removeÄ = string.replacingOccurrences(of: "ä", with: "ae")
@@ -15,7 +34,7 @@ public func generateQRCode(from string: String, backroundColor: UIColor, foregro
     let data = validString.data(using: String.Encoding.ascii)
     
     // QR filter
-    if let filter = CIFilter(name: "CIQRCodeGenerator") {
+    if let filter = CIFilter(name: type.filterName) {
         
         filter.setValue(data, forKey: "inputMessage")
         let transform = CGAffineTransform(scaleX: 20, y: 20)
