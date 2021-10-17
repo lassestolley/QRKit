@@ -6,7 +6,7 @@ import Foundation
 // QR Code types
 public enum QRType {
     
-    case qrCode, barCode, aztecCode
+    case qrCode, barCode
     
     var filterName: String {
         
@@ -16,8 +16,6 @@ public enum QRType {
             return "CIQRCodeGenerator"
         case .barCode:
             return "CICode128BarcodeGenerator"
-        default:
-            return "CIQRCodeGenerator"
         }
     }
 }
