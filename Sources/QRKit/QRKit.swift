@@ -23,13 +23,13 @@ public func generateQRCode(from string: String, backroundColor: UIColor, foregro
         if let output = filter.outputImage?.transformed(by: transform) {
             
             // Color filter
-            let colorFilter: CIFilter = CIFilter(name: "CIFalseColor")!
+            let colorFilter = CIFilter(name: "CIFalseColor")!
 
             // Set Colors
             colorFilter.setDefaults()
             colorFilter.setValue(output, forKey: "inputImage")
-            colorFilter.setValue(foregroundColor, forKey: "inputColor0")
-            colorFilter.setValue(backroundColor, forKey: "inputColor1")
+            colorFilter.setValue(CIColor(cgColor: foregroundColor.cgColor), forKey: "inputColor0")
+            colorFilter.setValue(CIColor(cgColor: backroundColor.cgColor), forKey: "inputColor1")
 
             let outputImage = colorFilter.outputImage!
             
