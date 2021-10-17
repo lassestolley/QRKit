@@ -11,7 +11,6 @@ public enum QRType {
     var filterName: String {
         
         switch self {
-        
         case .qrCode:
             return "CIQRCodeGenerator"
         case .barCode:
