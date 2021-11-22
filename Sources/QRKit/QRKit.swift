@@ -26,7 +26,11 @@ public func generateQRCode(from string: String, type: QRType, backroundColor: UI
     let removeÄ = string.replacingOccurrences(of: "ä", with: "ae")
     let removeÜ = removeÄ.replacingOccurrences(of: "ü", with: "ue")
     let removeÖ = removeÜ.replacingOccurrences(of: "ö", with: "oe")
-    let validString = removeÖ
+    let removeForward = removeÖ.replacingOccurrences(of: ">", with: " ")
+    let removeBackward = removeForward.replacingOccurrences(of: "<", with: " ")
+    let removeAnd = removeBackward.replacingOccurrences(of: "&", with: " ")
+    let specialCharacters = removeAnd.components(separatedBy: CharacterSet.symbols).joined()
+    let validString = specialCharacters
     
     let data = validString.data(using: String.Encoding.ascii)
     
