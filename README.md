@@ -1,14 +1,13 @@
 # QRKit
 
-With QRKit you can easily create QR or bar codes in Swift. You can choose foreground and background colors. The QR code you get simply as ```UIImage```.
+With QRKit you can easily create QR codes in Swift. QRKit supports a simple customization. The QR code you get simply as ```UIImage```.
 
 ## Features
 
-- [x] Create QR Codes
+- [x] Create QR codes
 - [x] Create bar codes
 - [x] Change the foreground color
 - [x] Change the background color
-- [x] Automatic umlaut replacement
 
 ## Installation
 
@@ -17,7 +16,7 @@ You can install QRKit with the Swift Package Manager.
 ```swift
 let package = Package(
     dependencies: [
-        .package(url: "https://github.com/Technikabo/QRKit.git", from: "1.0.0")
+        .package(url: "https://github.com/lassestolley/QRKit.git", from: "1.0.0")
     ],
 )
 ```
@@ -30,14 +29,47 @@ let package = Package(
 import QRKit
 ```
 
-**2.** A string with the content
+**2.** Create QR code
 
+`URL`
 ```swift
-let dataString = "Hello, I am the developer of this framework."
+if let url = yourUrl {
+    var qrCode = QRCode(url)
+    yourImageView.image = qrCode?.image
+}
 ```
 
-**3.** UIImageView
+`Data`
+```swift
+if let data = yourData {
+    var qrCode = QRCode(data)
+    yourImageView.image = qrCode?.image
+}
+```
+
+`String`
+```swift
+if let string = yourString {
+    var qrCode = QRCode(string)
+    yourImageView.image = qrCode?.image
+}
+```
+
+## Customize the QR code
+
+You can customize the QR code as you wish.
 
 ```swift
-qrImageView.image = generateQRCode(from: dataString, type: .qrCode, backroundColor: UIColor.opaqueSeparator, foregroundColor: UIColor.systemBlue)
+qrCode.backgroundColor = .systemRed
+qrCode.foregroundColor = .systemGreen
+qrCode.type = .qrCode
+qrCode.correction = .low
+```
+
+## UIImageView extension
+
+QRKit supports native implementation with a `UIImageView`
+
+```swift
+let imageView = UIImageView(qrCode: qrCode)
 ```
