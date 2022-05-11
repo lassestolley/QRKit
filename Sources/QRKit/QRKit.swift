@@ -1,63 +1,101 @@
+//
+//  MKInvertedCircleOverlay.swift
+//  MKInvertedCircleOverlay
+//
+//  Created by Lasse Stolley on 11.04.22.
+//  Copyright 2022 Lasse Stolley
+//  MIT License
+//
+//  https://github.com/lassestolley/QRKit
+//
 
 import UIKit
 import CoreImage
-import Foundation
 
-// QR Code types
-public enum QRType {
-    
-    case qrCode, barCode
-    
-    var filterName: String {
-        
-        switch self {
-        case .qrCode:
-            return "CIQRCodeGenerator"
-        case .barCode:
-            return "CICode128BarcodeGenerator"
-        }
+@available(iOS 13.0, *)
+extension UIImageView {
+    convenience init(qrCode: QRCode) {
+        self.init(image: qrCode.image)
     }
 }
 
-// Generate QR Code
-public func generateQRCode(from string: String, type: QRType, backroundColor: UIColor, foregroundColor: UIColor) -> UIImage? {
-    
-    // Remove umlauts
-    let removeÄ = string.replacingOccurrences(of: "ä", with: "ae")
-    let removeÜ = removeÄ.replacingOccurrences(of: "ü", with: "ue")
-    let removeÖ = removeÜ.replacingOccurrences(of: "ö", with: "oe")
-    let removeForward = removeÖ.replacingOccurrences(of: ">", with: " ")
-    let removeBackward = removeForward.replacingOccurrences(of: "<", with: " ")
-    let removeAnd = removeBackward.replacingOccurrences(of: "&", with: " ")
-    let specialCharacters = removeAnd.components(separatedBy: CharacterSet.symbols).joined()
-    let validString = specialCharacters
-    
-    let data = validString.data(using: String.Encoding.ascii)
-    
-    // QR filter
-    if let filter = CIFilter(name: type.filterName) {
-        
-        filter.setValue(data, forKey: "inputMessage")
-        let transform = CGAffineTransform(scaleX: 20, y: 20)
-        
-        // Transform the QR Code
-        if let output = filter.outputImage?.transformed(by: transform) {
-            
-            // Color filter
-            let colorFilter = CIFilter(name: "CIFalseColor")!
+@available(iOS 13.0, *)
 
-            // Set Colors
-            colorFilter.setDefaults()
-            colorFilter.setValue(output, forKey: "inputImage")
-            colorFilter.setValue(CIColor(cgColor: foregroundColor.cgColor), forKey: "inputColor0")
-            colorFilter.setValue(CIColor(cgColor: backroundColor.cgColor), forKey: "inputColor1")
-
-            let outputImage = colorFilter.outputImage!
-            
-            // Return UIImage with QR Code
-            return UIImage(ciImage: outputImage)
+/// Create a QR code with QRKit
+struct QRCode {
+    
+    /// QR code background color. The default value is `.systemBackground`.
+    public var backgroundColor: UIColor = .systemBackground
+    
+    /// QR code foreground color. The default value is `.label`.
+    public var foregroundColor: UIColor = .label
+    
+    /// Type of QR code. The default value is `.qrCode`.
+    public var type: QRCodeType = .qrCode
+    
+    /// Level of error correction. The default value is `.low`.
+    public var correction: QRCodeCorrection = .low
+    
+    /// Data contained in the QR code.
+    public var data: Data
+    
+    /// Type of QR code
+    public enum QRCodeType: String {
+        case qrCode = "CIQRCodeGenerator"
+        case barCode = "CICode128BarcodeGenerator"
+    }
+    
+    /// Level of error correction.
+    public enum QRCodeCorrection: String {
+        case low = "L"
+        case medium = "M"
+        case quartile = "Q"
+        case high = "H"
+    }
+    
+    public init(_ data: Data) {
+        self.data = data
+    }
+    
+    public init?(_ string: String) {
+        if let data = string.data(using: .isoLatin1) {
+            self.data = data
+        } else {
+            return nil
         }
     }
     
-    return nil
+    public init?(_ url: URL) {
+        if let data = url.absoluteString.data(using: .isoLatin1) {
+            self.data = data
+        } else {
+            return nil
+        }
+    }
+    
+    /// Returns a `UIImage` containing the QR Code
+    public var image: UIImage? {
+        
+        if let filter = CIFilter(name: type.rawValue) {
+            
+            filter.setValue(data, forKey: "inputMessage")
+            filter.setValue(correction.rawValue, forKey: "inputCorrectionLevel")
+            let transform = CGAffineTransform(scaleX: 20, y: 20)
+            
+            if let output = filter.outputImage?.transformed(by: transform) {
+                
+                let colorFilter = CIFilter(name: "CIFalseColor")!
+                colorFilter.setDefaults()
+                colorFilter.setValue(output, forKey: "inputImage")
+                colorFilter.setValue(CIColor(cgColor: foregroundColor.cgColor), forKey: "inputColor0")
+                colorFilter.setValue(CIColor(cgColor: backgroundColor.cgColor), forKey: "inputColor1")
+                
+                if let outputImage = colorFilter.outputImage {
+                    return UIImage(ciImage: outputImage)
+                }
+            }
+        }
+        
+        return nil
+    }
 }
